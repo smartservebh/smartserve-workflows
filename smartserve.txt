@@ -1,0 +1,151 @@
+{
+  "name": "SmartServe Daily Report + GPT + Google Sheets + Instagram Webhook",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "parameters": {
+        "interval": {
+          "hours": 24
+        }
+      },
+      "position": [100, 100]
+    },
+    {
+      "id": "2",
+      "name": "Google Sheets (Read)",
+      "type": "n8n-nodes-base.googleSheets",
+      "parameters": {
+        "operation": "read",
+        "sheetId": "YOUR_SHEET_ID",
+        "range": "A1:D10"
+      },
+      "position": [300, 100],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "id": "3",
+      "name": "GPT Recommendation",
+      "type": "n8n-nodes-base.openai",
+      "parameters": {
+        "operation": "chat",
+        "model": "gpt-4",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are a smart business assistant."
+          },
+          {
+            "role": "user",
+            "content": "Generate a smart summary and recommendation based on the following data: {{$json}}"
+          }
+        ]
+      },
+      "position": [500, 100],
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_ID",
+          "name": "OpenAI Account"
+        }
+      }
+    },
+    {
+      "id": "4",
+      "name": "Generate HTML",
+      "type": "n8n-nodes-base.markdown",
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.reply }}"
+      },
+      "position": [700, 100]
+    },
+    {
+      "id": "5",
+      "name": "Send Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "parameters": {
+        "sendTo": "client@example.com",
+        "subject": "Your Daily SmartServe Report",
+        "message": "={{ $json.html }}"
+      },
+      "position": [900, 80],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_ID",
+          "name": "Gmail Account"
+        }
+      }
+    },
+    {
+      "id": "6",
+      "name": "Send Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "parameters": {
+        "chatId": "YOUR_CHAT_ID",
+        "text": "={{ $json.reply }}"
+      },
+      "position": [900, 150],
+      "credentials": {
+        "telegramApi": {
+          "id": "YOUR_TELEGRAM_ID",
+          "name": "Telegram Account"
+        }
+      }
+    },
+    {
+      "id": "7",
+      "name": "Save in Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "parameters": {
+        "operation": "append",
+        "sheetId": "YOUR_SHEET_ID",
+        "range": "A1",
+        "data": {
+          "values": [
+            {
+              "value1": "={{ $json.date }}",
+              "value2": "={{ $json.reply }}"
+            }
+          ]
+        }
+      },
+      "position": [1100, 100],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "id": "8",
+      "name": "Instagram Webhook (Not Active)",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "url": "https://api.instagram.com/webhook-endpoint",
+        "method": "POST",
+        "sendBody": true,
+        "jsonParameters": true,
+        "bodyParametersJson": "{\"message\": \"{{$json.reply}}\"}"
+      },
+      "position": [1300, 100]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": [{"node": "Google Sheets (Read)", "type": "main", "index": 0}],
+    "Google Sheets (Read)": [{"node": "GPT Recommendation", "type": "main", "index": 0}],
+    "GPT Recommendation": [{"node": "Generate HTML", "type": "main", "index": 0}],
+    "Generate HTML": [
+      {"node": "Send Gmail", "type": "main", "index": 0},
+      {"node": "Send Telegram", "type": "main", "index": 0},
+      {"node": "Save in Google Sheet", "type": "main", "index": 0},
+      {"node": "Instagram Webhook (Not Active)", "type": "main", "index": 0}
+    ]
+  }
+}
