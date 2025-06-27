@@ -2,28 +2,28 @@
   "name": "SmartServe Daily Report + GPT + Google Sheets + Instagram Webhook",
   "nodes": [
     {
-      "id": "1",
-      "name": "Schedule Trigger",
-      "type": "n8n-nodes-base.scheduleTrigger",
       "parameters": {
         "interval": {
           "hours": 24
         }
       },
+      "id": "1",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
       "position": [
         100,
         100
       ]
     },
     {
-      "id": "2",
-      "name": "Google Sheets (Read)",
-      "type": "n8n-nodes-base.googleSheets",
       "parameters": {
         "operation": "read",
         "sheetId": "YOUR_SHEET_ID",
         "range": "A1:D10"
       },
+      "id": "2",
+      "name": "Google Sheets (Read)",
+      "type": "n8n-nodes-base.googleSheets",
       "position": [
         300,
         100
@@ -36,9 +36,6 @@
       }
     },
     {
-      "id": "3",
-      "name": "GPT Recommendation",
-      "type": "n8n-nodes-base.openai",
       "parameters": {
         "operation": "chat",
         "model": "gpt-4",
@@ -53,6 +50,9 @@
           }
         ]
       },
+      "id": "3",
+      "name": "GPT Recommendation",
+      "type": "n8n-nodes-base.openai",
       "position": [
         500,
         100
@@ -65,27 +65,27 @@
       }
     },
     {
-      "id": "4",
-      "name": "Generate HTML",
-      "type": "n8n-nodes-base.markdown",
       "parameters": {
         "mode": "markdownToHtml",
         "markdown": "={{ $json.reply }}"
       },
+      "id": "4",
+      "name": "Generate HTML",
+      "type": "n8n-nodes-base.markdown",
       "position": [
         700,
         100
       ]
     },
     {
-      "id": "5",
-      "name": "Send Gmail",
-      "type": "n8n-nodes-base.gmail",
       "parameters": {
         "sendTo": "client@example.com",
         "subject": "Your Daily SmartServe Report",
         "message": "={{ $json.html }}"
       },
+      "id": "5",
+      "name": "Send Gmail",
+      "type": "n8n-nodes-base.gmail",
       "position": [
         900,
         80
@@ -98,13 +98,13 @@
       }
     },
     {
-      "id": "6",
-      "name": "Send Telegram",
-      "type": "n8n-nodes-base.telegram",
       "parameters": {
         "chatId": "YOUR_CHAT_ID",
         "text": "={{ $json.reply }}"
       },
+      "id": "6",
+      "name": "Send Telegram",
+      "type": "n8n-nodes-base.telegram",
       "position": [
         900,
         150
@@ -117,9 +117,6 @@
       }
     },
     {
-      "id": "7",
-      "name": "Save in Google Sheet",
-      "type": "n8n-nodes-base.googleSheets",
       "parameters": {
         "operation": "append",
         "sheetId": "YOUR_SHEET_ID",
@@ -133,6 +130,9 @@
           ]
         }
       },
+      "id": "7",
+      "name": "Save in Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
       "position": [
         1100,
         100
@@ -145,9 +145,6 @@
       }
     },
     {
-      "id": "8",
-      "name": "Instagram Webhook (Not Active)",
-      "type": "n8n-nodes-base.httpRequest",
       "parameters": {
         "url": "https://api.instagram.com/webhook-endpoint",
         "method": "POST",
@@ -155,6 +152,9 @@
         "jsonParameters": true,
         "bodyParametersJson": "{\"message\": \"{{$json.reply}}\"}"
       },
+      "id": "8",
+      "name": "Instagram Webhook (Not Active)",
+      "type": "n8n-nodes-base.httpRequest",
       "position": [
         1300,
         100
@@ -162,49 +162,64 @@
     }
   ],
   "connections": {
-    "Schedule Trigger": [
-      {
-        "node": "Google Sheets (Read)",
-        "type": "main",
-        "index": 0
-      }
-    ],
-    "Google Sheets (Read)": [
-      {
-        "node": "GPT Recommendation",
-        "type": "main",
-        "index": 0
-      }
-    ],
-    "GPT Recommendation": [
-      {
-        "node": "Generate HTML",
-        "type": "main",
-        "index": 0
-      }
-    ],
-    "Generate HTML": [
-      {
-        "node": "Send Gmail",
-        "type": "main",
-        "index": 0
-      },
-      {
-        "node": "Send Telegram",
-        "type": "main",
-        "index": 0
-      },
-      {
-        "node": "Save in Google Sheet",
-        "type": "main",
-        "index": 0
-      },
-      {
-        "node": "Instagram Webhook (Not Active)",
-        "type": "main",
-        "index": 0
-      }
-    ]
-  },
-  "version": 1
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets (Read)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets (Read)": {
+      "main": [
+        [
+          {
+            "node": "GPT Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT Recommendation": {
+      "main": [
+        [
+          {
+            "node": "Generate HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate HTML": {
+      "main": [
+        [
+          {
+            "node": "Send Gmail",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save in Google Sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Instagram Webhook (Not Active)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
 }
