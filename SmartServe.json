@@ -1,0 +1,98 @@
+{
+  "name": "SmartServe Daily Report",
+  "nodes": [
+    {
+      "parameters": {
+        "interval": {
+          "hours": 24
+        }
+      },
+      "id": "1",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [100, 100]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "sheetId": "YOUR_SHEET_ID",
+        "range": "A1:D10"
+      },
+      "id": "2",
+      "name": "Google Sheets (Read)",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [300, 100],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "chat",
+        "model": "gpt-4",
+        "messages": [
+          { "role": "system", "content": "You are a smart business assistant." },
+          { "role": "user", "content": "Generate a smart summary and recommendation based on {{$json}}" }
+        ]
+      },
+      "id": "3",
+      "name": "GPT Recommendation",
+      "type": "n8n-nodes-base.openai",
+      "position": [500, 100],
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_ID",
+          "name": "OpenAI Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.reply }}"
+      },
+      "id": "4",
+      "name": "Generate HTML",
+      "type": "n8n-nodes-base.markdown",
+      "position": [700, 100]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets (Read)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets (Read)": {
+      "main": [
+        [
+          {
+            "node": "GPT Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT Recommendation": {
+      "main": [
+        [
+          {
+            "node": "Generate HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
